@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:volume_watcher/volume_watcher.dart';
 
 void main() {
   runApp(const xylophoneApp());
@@ -8,12 +10,25 @@ void main() {
 class xylophoneApp extends StatelessWidget {
   const xylophoneApp({super.key});
 
-  void playSound(int soundNumber) {
-    final player = AudioPlayer();
-    player.play(AssetSource('note$soundNumber.wav'));
+  void playSound(int soundNumber) async {
+    double currentVolume = await VolumeWatcher.getCurrentVolume;
+    if (currentVolume > 0) {
+      final player = AudioPlayer();
+      player.play(AssetSource('note$soundNumber.wav'));
+    } else {
+      Fluttertoast.showToast(
+        msg: "Increase Volume",
+        toastLength: Toast.LENGTH_SHORT,
+        gravity: ToastGravity.CENTER,
+        timeInSecForIosWeb: 1,
+        backgroundColor: Colors.red,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+    }
   }
 
-  Expanded buildKey({int soundNumber = 1, Color color = Colors.red}) {
+  Expanded buildKey({required int soundNumber, required Color color}) {
     return Expanded(
       child: TextButton(
         onPressed: () {
@@ -32,13 +47,6 @@ class xylophoneApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        // appBar: AppBar(
-        //     title: Text(
-        //       'Piano',
-        //       style: TextStyle(color: Colors.white),
-        //     ),
-        //     centerTitle: true,
-        //     backgroundColor: Colors.orange),
         backgroundColor: Colors.black,
         body: SafeArea(
           child: Column(
