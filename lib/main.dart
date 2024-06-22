@@ -1,30 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:volume_watcher/volume_watcher.dart';
+import 'package:flutter_volume_controller/flutter_volume_controller.dart';
 
 void main() {
-  runApp(const xylophoneApp());
+  runApp(const XylophoneApp());
 }
 
-class xylophoneApp extends StatelessWidget {
-  const xylophoneApp({super.key});
+class XylophoneApp extends StatelessWidget {
+  const XylophoneApp({super.key});
 
   void playSound(int soundNumber) async {
-    double currentVolume = await VolumeWatcher.getCurrentVolume;
-    if (currentVolume > 0) {
+    // Check the current volume
+    double? volume = await FlutterVolumeController.getVolume();
+
+    if (volume == null || volume == 0) {
+      // Show toast message if volume is zero or null
+      Fluttertoast.showToast(
+          msg: "Please increase the volume",
+          backgroundColor: Colors.white,
+          textColor: Colors.black,
+          fontSize: 16.0);
+    } else {
+      // Play the sound if volume is not zero
       final player = AudioPlayer();
       player.play(AssetSource('note$soundNumber.wav'));
-    } else {
-      Fluttertoast.showToast(
-        msg: "Increase Volume",
-        toastLength: Toast.LENGTH_SHORT,
-        gravity: ToastGravity.CENTER,
-        timeInSecForIosWeb: 1,
-        backgroundColor: Colors.red,
-        textColor: Colors.white,
-        fontSize: 16.0,
-      );
     }
   }
 
@@ -34,11 +34,11 @@ class xylophoneApp extends StatelessWidget {
         onPressed: () {
           playSound(soundNumber);
         },
-        child: Text(''),
         style: TextButton.styleFrom(
           backgroundColor: color,
           shape: const RoundedRectangleBorder(borderRadius: BorderRadius.zero),
         ),
+        child: const Text(''),
       ),
     );
   }
